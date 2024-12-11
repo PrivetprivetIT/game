@@ -1,21 +1,41 @@
 from tkinter import *
 from pickle import load, dump
 
-
-
 def set_status(text, color='black'):
-    pass
-
+    canvas.itemconfig(text_id, text = text, fill = color)
 
 def pause_toggle():
-    pass
+    global pause
+    pause = not pause
+    if pause:
+        set_status('ПАУЗА')
+    else:
+        set_status('Вперёд!')
 
 def key_handler(event):
-    pass
+    if event.keycode == KEY_PAUSE:
+        pause_toggle()
+    if pause:
+        return
 
+    if event.keycode == KEY_PLAYER1:
+        canvas.move(player1, 100, 0)
+    elif event.keycode == KEY_PLAYER2:
+        canvas.move(player2, 10, 0)
 
 def check_finish():
-    pass
+    coords_player1 = canvas.coords(player1)
+    coords_player2 = canvas.coords(player2)
+    coords_finish = canvas.coords(finish_id)
+
+    x1_right = coords_player1[2]
+    x2_right = coords_player2[2]
+    x_finish = coords_finish[0]
+
+    if x1_right >= x_finish:
+        set_status('Победа Красного Игрока', player1_color)
+    if x2_right >= x_finish:
+        set_status('Победа Синего Игрока', player2_color)
 
 # область глобальных переменных
 game_width = 800
@@ -71,7 +91,7 @@ finish_id = canvas.create_rectangle(x_finish,
                                     fill='black')
 
 text_id = canvas.create_text(x1,
-                             game_height - 50,
+                             game_height - 400,
                              anchor=SW,
                              font=('Arial', '25'),
                              text='Вперед!')
