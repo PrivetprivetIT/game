@@ -25,8 +25,6 @@ def key_handler(event):
     if event.keycode == KEY_ESC:
         menu.menu_toggle(canvas)
 
-
-
     set_status('Вперед!')
 
     if event.keycode == KEY_PLAYER1:
