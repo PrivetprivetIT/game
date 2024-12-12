@@ -1,29 +1,43 @@
+import menu
 from tkinter import *
-from pickle import load, dump
 
 def set_status(text, color='black'):
-    canvas.itemconfig(text_id, text = text, fill = color)
-
-def pause_toggle():
-    global pause
-    pause = not pause
-    if pause:
-        set_status('ПАУЗА')
-    else:
-        set_status('Вперёд!')
+    canvas.itemconfig(text_id, text=text, fill=color)
 
 def key_handler(event):
-    if event.keycode == KEY_PAUSE:
-        pause_toggle()
-    if pause:
+    if event.keycode == KEY_UP:
+        menu.menu_up(canvas)
+    if event.keycode == KEY_DOWN:
+        menu.menu_down(canvas)
+    if event.keycode == KEY_ENTER:
+        menu.menu_enter(canvas, player1, player2, text_id)
+
+    if game_over:
         return
 
+    if event.keycode == KEY_PAUSE:
+        menu.pause_toggle()
+        set_status('Пауза!')
+
+    if menu.pause:
+        return
+
+    if event.keycode == KEY_ESC:
+        menu.menu_toggle(canvas)
+
+
+
+    set_status('Вперед!')
+
     if event.keycode == KEY_PLAYER1:
-        canvas.move(player1, 100, 0)
-    elif event.keycode == KEY_PLAYER2:
-        canvas.move(player2, 10, 0)
+        canvas.move(player1, SPEED, 0)
+    if event.keycode == KEY_PLAYER2:
+        canvas.move(player2, SPEED, 0)
+
+    check_finish()
 
 def check_finish():
+    global game_over
     coords_player1 = canvas.coords(player1)
     coords_player2 = canvas.coords(player2)
     coords_finish = canvas.coords(finish_id)
@@ -33,47 +47,46 @@ def check_finish():
     x_finish = coords_finish[0]
 
     if x1_right >= x_finish:
-        set_status('Победа Красного Игрока', player1_color)
+        set_status('Победа верхнего игрока', player1_color)
+        game_over = True
+
     if x2_right >= x_finish:
-        set_status('Победа Синего Игрока', player2_color)
+        set_status('Победа нижнего игрока', player2_color)
+        game_over = True
 
-# область глобальных переменных
-game_width = 800
-game_height = 800
-menu_mode = True
-menu_options = ['Возврат в игру', 'Новая игра', 'Сохранить', 'Загрузить', 'Выход']
-menu_current_index = 3
-menu_options_id = []
+game_width = menu.game_width
+game_height = menu.game_height
+menu_mode = menu.menu_mode
+menu_options = menu.menu_options
+menu_current_index = menu.menu_current_index
+menu_options_id = menu.menu_options_id
 
+KEY_UP = menu.KEY_UP
+KEY_DOWN = menu.KEY_DOWN
+KEY_ESC = menu.KEY_ESC
+KEY_ENTER = menu.KEY_ENTER
 
-KEY_UP = 87
-KEY_DOWN = 83
-KEY_ESC = 27
-KEY_ENTER = 13
-
-player_size = 100
-x1, y1 = 50, 50
+player_size = menu.player_size
+x1, y1 = menu.x1, menu.y1
 x2, y2 = x1, y1 + player_size + 100
-player1_color = 'red'
-player2_color = 'blue'
+player1_color = menu.player1_color
+player2_color = menu.player2_color
 
 x_finish = game_width - 50
 
-KEY_PLAYER1 = 39
-KEY_PLAYER2 = 68
-KEY_PAUSE = 32
+KEY_PLAYER1 = menu.KEY_PLAYER1
+KEY_PLAYER2 = menu.KEY_PLAYER2
+KEY_PAUSE = menu.KEY_PAUSE
 
-SPEED = 12
+SPEED = menu.SPEED
 
-game_over = False
-pause = False
-
-
+game_over = menu.game_over
+pause = menu.pause
 window = Tk()
-window.title('Меню игры')
-
+window.title('DMEC')
 canvas = Canvas(window, width=game_width, height=game_height, bg='white')
 canvas.pack()
+men = menu.menu_create(canvas)
 player1 = canvas.create_rectangle(x1,
                                   y1,
                                   x1 + player_size,
@@ -89,13 +102,12 @@ finish_id = canvas.create_rectangle(x_finish,
                                     x_finish + 10,
                                     game_height,
                                     fill='black')
-
 text_id = canvas.create_text(x1,
-                             game_height - 400,
+                             game_height - 50,
                              anchor=SW,
                              font=('Arial', '25'),
                              text='Вперед!')
 
-
 window.bind('<KeyRelease>', key_handler)
+
 window.mainloop()
